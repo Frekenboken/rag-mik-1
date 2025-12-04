@@ -1,0 +1,9 @@
+# Специфичные для Python правила
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+.idea/
+.env
+poetry.lock
+*.egg-info/
