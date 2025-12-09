@@ -2,7 +2,7 @@ from transformers import AutoModelForSequenceClassification
 
 class Rerank:
     def __init__(self, model_name='jinaai/jina-reranker-v2-base-multilingual'):
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_name, torch_dtype="auto", trust_remote_code=True)
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_name, dtype="auto", trust_remote_code=True)
         self.model.to('cpu')
         self.model.eval()
 

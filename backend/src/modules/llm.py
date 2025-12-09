@@ -1,19 +1,21 @@
 from langchain_gigachat.chat_models import GigaChat
 
-context_promt = lambda history, context, query_text: f"""
-        Ты - техническая система поддержки для инспекционной машины МИК-1.
-        Используя только предоставленный контекст, ответь на вопрос пользователя.
 
-        История диалога:
-        {history}
+def context_prompt(history, context, query_text):
+    return f"""
+    Ты - техническая система поддержки для инспекционной машины МИК-1.
+    Используя только предоставленный контекст, ответь на вопрос пользователя.
 
-        Контекст:
-        {context}
+    История диалога:
+    {history}
 
-        Вопрос: {query_text}
-        """
+    Контекст:
+    {context}
 
-class RussianLLM:
+    Вопрос: {query_text}
+    """
+
+class LLM:
     def __init__(
             self,
             cont_prompt,
@@ -35,6 +37,3 @@ class RussianLLM:
     def docs_chunker(self, docs, docs_prompt):
         chunked_docs = [self.model.no_context_response(docs_prompt + doc).content.split('\n\n') for doc in docs]
         return chunked_docs
-
-
-giga = RussianLLM(context_promt)
