@@ -8,11 +8,11 @@ class SemanticSearch:
     def __init__(self, vector_db: faiss.swigfaiss_avx2.IndexFlatIP, chunks, rerank: Rerank, embedding: TextEmbedder):
         self.vector_db = vector_db
         self.chunks = chunks
-        self.rerank = rerank()
-        self.embedding = embedding()
+        self.rerank = rerank
+        self.embedding = embedding
 
     def search_debuging(self, query_text, k=3):
-        relevance = rerank.reranking_and_format(
+        relevance = self.rerank.reranking_and_format(
             self.vector_db.search(self.embedding.get_embeddings([query_text.lower()]), k)[1][0],
             query_text.lower(),
             self.chunks
@@ -25,7 +25,7 @@ class SemanticSearch:
             print("=" * 80)
 
     def search(self, query_text, k=3):
-         relevance = rerank.reranking_and_format(
+         relevance = self.rerank.reranking_and_format(
             self.vector_db.search(self.embedding.get_embeddings([query_text.lower()]), k)[1][0],
             query_text.lower(),
             self.chunks

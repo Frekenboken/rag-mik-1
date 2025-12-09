@@ -19,7 +19,7 @@ class LLM:
     def __init__(
             self,
             cont_prompt,
-            credentials='MDE5YWViMmQtNDYzOC03OGRiLTk4OGEtNDdmNzkxOWVlNTFkOmVjMzRhN2Q4LWE4ZjQtNDUwNS1hNjk0LTk5OGFlNmNmYmU3NA==',
+            credentials='MDE5YWViMmQtNDYzOC03OGRiLTk4OGEtNDdmNzkxOWVlNTFkOmU4MmE0OWJiLWI4OTQtNGVhMi04NTE3LTQzNDJlMWU5YzBjNw==',
             verify_ssl_certs=False
             ):
         print("Инициализация LLM...")

@@ -69,7 +69,7 @@ class RAG:
             print("Эмбеддинги найдены!")
         except:
             print("Эмбеддинги не найдены\nСоздание эмбеддингов...")
-            embeddings = self.embedder.get_embeddings(all_chunks)
+            embeddings = self.embedder.get_embeddings(self.all_chunks)
             np.save(self.vdb_path + 'embeddings.npy', embeddings, allow_pickle=False, fix_imports=False)
             print("Завершено!")
 
@@ -93,7 +93,7 @@ class RAG:
 
 
         try:
-            self.semantic_search = SemanticSearch(self.index, self.all_chunks, self.embedder)
+            self.semantic_search = SemanticSearch(self.index, self.all_chunks, self.rerank, self.embedder)
         except:
             raise ModuleLoadingFailure(SemanticSearch)
         print('RAG система инициализированна')
@@ -101,7 +101,7 @@ class RAG:
     def interaction(self, query, history, k=3):
         context = self.semantic_search.search(query, k=k)[0]
         response = self.llm.context_response(history, context, query)
-        return f'LLM: {response}'
+        return response
 
     def semsearch_debug(self, query, k):
         self.semantic_search.search_debuging(query, k=k)
