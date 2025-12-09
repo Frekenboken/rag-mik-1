@@ -1,13 +1,15 @@
 import faiss
-import Rerank
-import TextEmbedder
+import rerank
+
+from src.modules.rerank import Rerank
+from src.modules.text_embedder import TextEmbedder
 
 class SemanticSearch:
-    def __init__(self, vector_db: faiss.swigfaiss_avx2.IndexFlatIP, chunks, rerank: Rerank(), embedding: TextEmbedder()):
+    def __init__(self, vector_db: faiss.swigfaiss_avx2.IndexFlatIP, chunks, rerank: Rerank, embedding: TextEmbedder):
         self.vector_db = vector_db
         self.chunks = chunks
-        self.rerank = Rerank
-        self.embedding = embedding
+        self.rerank = rerank()
+        self.embedding = embedding()
 
     def search_debuging(self, query_text, k=3):
         relevance = rerank.reranking_and_format(

@@ -1,15 +1,15 @@
-from backend.src.modules.LLM import *
-from backend.src.modules.Rerank import *
-from backend.src.modules.TextEmbedder import *
-from backend.src.modules.SemanticSearch import *
-from backend.src.modules.DocumentTools import *
+from src.modules.llm import RussianLLM
+from src.modules.rerank import Rerank
+from src.modules.text_embedder import TextEmbedder
+from src.modules.semantic_search import SemanticSearch
+from src.modules.document_tools import DocumentsLoader, Chunker
 
 
 class RAG:
     def __init__(
             self,
             rerank: Rerank,
-            llm: LLM,
+            llm: RussianLLM,
             embedder: TextEmbedder,
             semantic_search: SemanticSearch,
             chunker: Chunker,
@@ -27,3 +27,4 @@ class RAG:
         print('RAG system initialised')
 
     def documents_load(self):
+        pass
