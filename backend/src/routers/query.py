@@ -12,6 +12,8 @@ from src.core.db import get_session
 from authx import TokenPayload
 from src.schemas.query import QueryResponse, QueryRequest
 
+from src.modules.rag_system import rag
+
 router = APIRouter(prefix="/query", tags=["query"])
 
 
@@ -19,5 +21,5 @@ router = APIRouter(prefix="/query", tags=["query"])
 async def post_query(query_request: QueryRequest,
                      current_user: CurrentUserResponse = Depends(get_current_user),
                      session: AsyncSession = Depends(get_session)):
-    return QueryResponse(answer=query_request.question, confidence=0.95, sources=[], related_topic=[])
+    return QueryResponse(answer=rag.interaction(query_request.question, query_request.context).content, confidence=0.95, sources=[], related_topic=[])
 

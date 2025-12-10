@@ -1,6 +1,5 @@
 from transformers import AutoTokenizer, AutoModel
 import torch
-import numpy
 
 class TextEmbedder:
     def __init__(self, model_name='intfloat/multilingual-e5-large'):

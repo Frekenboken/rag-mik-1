@@ -1,9 +1,9 @@
-from llm import LLM, context_prompt
-from rerank import Rerank
-from text_embedder import TextEmbedder
-from semantic_search import SemanticSearch
-from document_tools import DocumentsLoader, Chunker
-from rag_exeptions import DimensionMismatch, ModuleLoadingFailure
+from src.modules.llm import LLM, context_prompt
+from src.modules.rerank import Rerank
+from src.modules.text_embedder import TextEmbedder
+from src.modules.semantic_search import SemanticSearch
+from src.modules.document_tools import DocumentsLoader, Chunker
+from src.modules.rag_exeptions import DimensionMismatch, ModuleLoadingFailure
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 import faiss
 import pickle
@@ -108,3 +108,5 @@ class RAG:
 
     def rag_rating(self):
         pass
+
+rag = RAG('src/static/docs/', 'vector_db', '*.md')
