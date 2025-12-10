@@ -19,7 +19,7 @@ class SemanticSearch:
         print(f"🔍 Запрос: '{query_text}'\n")
         for i, (similarity, idx) in enumerate(relevance):
             print(f"{i+1}.")
-            print(f"{self.chunks[idx]}")
+            print(f"{self.chunks[idx][0]}")
             print(f"   📊 Сходство: {similarity:.4f}\n")
             print("=" * 80)
 

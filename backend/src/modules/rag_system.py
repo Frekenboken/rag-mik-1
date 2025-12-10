@@ -13,12 +13,6 @@ import numpy as np
 class RAG:
     def __init__(
             self,
-            #rerank: Rerank,
-            #llm: LLM,
-            #embedder: TextEmbedder,
-            #semantic_search: SemanticSearch,
-            #chunker: Chunker,
-            #documents_loader: DocumentsLoader,
             docs_path,
             vdb_path,
             file_type
@@ -31,10 +25,10 @@ class RAG:
             self.rerank = Rerank()
         except:
             raise ModuleLoadingFailure(Rerank)
-
-        self.llm = LLM(context_prompt)
-
-            #raise ModuleLoadingFailure(LLM)
+        try:
+            self.llm = LLM(context_prompt)
+        except:
+            raise ModuleLoadingFailure(LLM)
         try:
             self.embedder = TextEmbedder()
         except:
@@ -93,14 +87,14 @@ class RAG:
 
 
         try:
-            self.semantic_search = SemanticSearch(self.index, self.all_chunks, self.rerank, self.embedder)
+            self.semantic_search = SemanticSearch(self.index, self.chunks_with_meta, self.rerank, self.embedder)
         except:
             raise ModuleLoadingFailure(SemanticSearch)
         print('RAG система инициализированна')
 
     def interaction(self, query, history, k=3):
-        context = self.semantic_search.search(query, k=k)[0]
-        response = self.llm.context_response(history, context, query)
+        context = self.semantic_search.search(query, k=k)
+        response = self.llm.context_response(history, ''.join([chunk[0] for chunk in context]), query)
         return response
 
     def semsearch_debug(self, query, k):

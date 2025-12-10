@@ -7,5 +7,5 @@ class Rerank:
         self.model.eval()
 
     def reranking_and_format(self, chunk_indices, query_text, all_chunks):
-        scores = self.model.compute_score([[query_text, all_chunks[i]] for i in chunk_indices], max_length=1024)
+        scores = self.model.compute_score([[query_text, all_chunks[i][0].lower()] for i in chunk_indices], max_length=1024)
         return sorted(zip(scores, chunk_indices), key=lambda x: x[0], reverse=True)
