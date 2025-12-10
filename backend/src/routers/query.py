@@ -21,5 +21,5 @@ router = APIRouter(prefix="/query", tags=["query"])
 async def post_query(query_request: QueryRequest,
                      current_user: CurrentUserResponse = Depends(get_current_user),
                      session: AsyncSession = Depends(get_session)):
-    return QueryResponse(answer=rag.interaction(query_request.question, query_request.context)[0].content, confidence=0.95, sources=[], related_topic=[])
+    return QueryResponse(answer=rag.interaction(query_request.question, query_request.context), confidence=0.95, sources=[], related_topic=[])
 

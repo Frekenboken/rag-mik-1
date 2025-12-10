@@ -34,7 +34,7 @@
                             <div class="font-semibold text-xs mb-1 opacity-70">
                                 {{ message.role === 'user' ? 'You' : 'Assistant' }}
                             </div>
-                            {{ message.content }}
+                            <div v-html="parseMarkdown(message.content)"></div>
                         </div>
                         <div :class="[
                             'text-xs mt-1 px-2',
@@ -103,6 +103,8 @@
 import { ref, watch, nextTick, onMounted } from 'vue'
 import { useChatStore } from '../stores/chat'
 
+import { marked } from 'marked';
+
 // Refs
 const userInput = ref('')
 const textareaRef = ref(null)
@@ -139,6 +141,10 @@ const formatTime = (timestamp) => {
     const date = new Date(timestamp)
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
+
+const parseMarkdown = (text) => {
+  return marked(text || '');
+};
 
 // Watchers
 watch(messages, async () => {
