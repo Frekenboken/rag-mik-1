@@ -32,12 +32,5 @@ security.handle_errors(app)
 
 @app.on_event("startup")
 async def on_startup():
-    db_path = 'database.db'
-    if os.path.exists(db_path):
-        os.remove(db_path)
-        print("Файл базы данных удален")
-    else:
-        print("Файл базы данных не существует")
-
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
