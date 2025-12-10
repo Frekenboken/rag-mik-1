@@ -95,7 +95,7 @@ class RAG:
     def interaction(self, query, history, k=3):
         context = self.semantic_search.search(query, k=k)
         response = self.llm.context_response(history, ''.join([chunk[0] for chunk in context]), query)
-        return response, [f'{source}, Раздел {x_topic}.{s_topic}' for chunk, s_topic, x_topic, source in context]
+        return response.content + '\nИсточники: ' + ', '.join([f'{source}, Раздел {x_topic}.{s_topic}' for chunk, s_topic, x_topic, source in context])
 
     def semsearch_debug(self, query, k):
         self.semantic_search.search_debuging(query, k=k)
