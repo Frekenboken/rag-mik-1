@@ -1,7 +1,5 @@
-from src.modules.rag_system import RAG
+from src.modules.rag_system import rag
 
-rag = RAG('../static/docs/', 'vector_db', '*.md')
-
-query = "Что такое МИК-1?"
-answer = rag.interaction(query, '').content
-print(f'user: {query}\nLLM: {}')
+query = "Какой максимальный вес стеклоизделия может контроллировать MIK-1?"
+answer = rag.interaction(query, '', k=5)
+print(f'user: {query}\nLLM: {answer[0].content}\nИсточники: {'; '.join(answer[1])}')

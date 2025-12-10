@@ -47,7 +47,7 @@ class Chunker:
     def advanced_separate(docs):
         chunks_with_meta = [
             (s_topic, s_ind, x_ind,
-             doc.metadata['source'][doc.metadata['source'].rfind('/') + 1:doc.metadata['source'].rfind('.')])
+             doc.metadata['source'][doc.metadata['source'].rfind('\\') + 1:doc.metadata['source'].rfind('.')])
             for doc in docs
             for x_ind, x_topic in enumerate(re.compile(r'(?!#)*##\s+').split(doc.page_content), 1)
             for s_ind, s_topic in enumerate(re.compile(r'(?!#)*###\s+').split(x_topic), 1)
