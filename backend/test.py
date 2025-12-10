@@ -1,4 +1,4 @@
-from rag_system import RAG
+from src.modules.rag_system import RAG
 
 rag = RAG('../static/docs/', 'vector_db', '*.md')
 

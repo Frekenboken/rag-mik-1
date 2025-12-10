@@ -10,18 +10,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
-    # DB_URL: str
-    # DB_USER: str
-    # DB_PASSWORD: str
-    # DB_HOST: str
-    # DB_PORT: int
-    # DB_NAME: str
-    # DB_ECHO: bool
-    #
-    # BOT_TOKEN: str
-    # ADMIN_CHAT_ID: int
-    # ADMIN_TOPIC_THREAD_ID: int
-    # USER_TOPIC_THREAD_ID: int
+    GIGACHAT_API_TOKEN: str
+
 
 
 @lru_cache

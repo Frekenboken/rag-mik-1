@@ -103,4 +103,4 @@ class RAG:
     def rag_rating(self):
         pass
 
-rag = RAG('src/static/docs/', 'vector_db', '*.md')
+rag = RAG('src/static/docs/', 'src/vector_db/', '*.md')

@@ -1,5 +1,6 @@
 from langchain_gigachat.chat_models import GigaChat
 
+from src.core.config import settings
 
 def context_prompt(history, context, query_text):
     return f"""
@@ -19,7 +20,7 @@ class LLM:
     def __init__(
             self,
             cont_prompt,
-            credentials='MDE5YWViMmQtNDYzOC03OGRiLTk4OGEtNDdmNzkxOWVlNTFkOmU4MmE0OWJiLWI4OTQtNGVhMi04NTE3LTQzNDJlMWU5YzBjNw==',
+            credentials=settings.GIGACHAT_API_TOKEN,
             verify_ssl_certs=False
             ):
         print("Инициализация LLM...")
