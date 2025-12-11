@@ -169,7 +169,17 @@ const formatTime = (timestamp) => {
 }
 
 const parseMarkdown = (text) => {
-    return marked(text || '');
+    if (!text) return '';
+
+    // Вариант A: Простая замена
+    const withBreaks = text.replace(/\n/g, '<br>');
+    return marked(withBreaks);
+
+    // Вариант B: Для кода
+    return marked(text, {
+        breaks: true, // marked будет превращать \n в <br>
+        gfm: true
+    });
 };
 
 // Watchers
