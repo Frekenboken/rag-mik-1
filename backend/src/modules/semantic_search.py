@@ -1,7 +1,7 @@
 import faiss
 import re
 import string
-import pymorphy2
+from natasha import MorphVocab
 
 from src.modules.rerank import Rerank
 from src.modules.text_embedder import TextEmbedder
@@ -10,10 +10,16 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 
-'''nltk.download('punkt_tab')
+import nltk
+# Скачайте все необходимые данные
+nltk.download('punkt')
+nltk.download('punkt_tab')
 nltk.download('stopwords')
-nltk.download('wordnet')
-nltk.download('averaged_perceptron_tagger_ru')'''
+nltk.download('averaged_perceptron_tagger_rus')
+
+# Для русского языка также может понадобиться
+# nltk.download('rslp')  # для стемминга
+
 
 class SemanticSearch:
     def __init__(self, vector_db: faiss.swigfaiss_avx2.IndexFlatIP, chunks, rerank: Rerank, embedding: TextEmbedder):
@@ -21,7 +27,7 @@ class SemanticSearch:
         self.chunks = chunks
         self.rerank = rerank
         self.embedding = embedding
-        self.morph = pymorphy2.MorphAnalyzer()
+        self.morph = MorphVocab()
 
     def search_debuging(self, query_text, k=3):
         relevance = self.rerank.reranking_and_format(
