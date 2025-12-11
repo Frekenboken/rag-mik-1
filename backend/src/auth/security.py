@@ -16,6 +16,7 @@ config.JWT_SECRET_KEY = settings.SECRET_KEY
 config.JWT_ACCESS_CSRF_COOKIE_NAME = "access_token"
 config.JWT_TOKEN_LOCATION = ["cookies"]
 config.JWT_COOKIE_CSRF_PROTECT = False
+config.JWT_ACCESS_TOKEN_EXPIRES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 security = AuthX(config=config)
 
