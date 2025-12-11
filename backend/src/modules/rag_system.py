@@ -54,7 +54,7 @@ class RAG:
         except:
             print('Обработанные документы не найдены\nОбработка документов...')
             self.docs = self.documents_loader.process_docs()
-            self.all_chunks, self.chunks_with_meta = self.chunker.advanced_separate(self.docs)
+            self.all_chunks, self.chunks_with_meta = self.chunker.advanced_separate_on_chunks(self.docs)
             with open(docs_path + '../' + 'docs.bin', 'wb') as docs:
                 pickle.dump(self.docs, docs)
             with open(docs_path + '../' + 'all_chunks.bin', 'wb') as all_chunks:

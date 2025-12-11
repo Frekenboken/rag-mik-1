@@ -48,7 +48,8 @@ class SemanticSearch:
             query_text.lower(),
             self.chunks
             )
-         return [self.chunks[idx] for similarity, idx in filter(lambda x: x[0] > 0.17, relevance)]
+         # return [self.chunks[idx] for similarity, idx in filter(lambda x: x[0] > 0.17, relevance)]
+         return [self.chunks[idx] for similarity, idx in relevance if similarity > 0.17]
 
     def extract_keywords(self, text):
 

@@ -49,6 +49,17 @@
                     </div>
                 </div>
 
+                <!-- Error message -->
+                <div v-if="error"
+                    class="px-4 py-3 alert alert-error w-fit rounded-2xl shadow border text-sm rounded-bl-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{ error }}</span>
+                    <button class="btn btn-sm btn-ghost" @click="error = ''">Закрыть</button>
+                </div>
+
                 <!-- Loading indicator -->
                 <div v-if="isLoading" class="flex justify-start">
                     <div class="max-w-xl p-4 rounded-2xl bg-base-100 border border-base-300">
@@ -66,7 +77,7 @@
                     <div class="flex gap-3 items-end">
                         <div class="flex-1 relative">
                             <textarea v-model="userInput" ref="textareaRef" rows="1"
-                                class="textarea textarea-bordered w-full rounded-2xl resize-none min-h-[48px] max-h-32 py-3 pr-12"
+                                class="textarea textarea-bordered w-full rounded-xl resize-none min-h-[48px] max-h-32 py-3 pr-12"
                                 :disabled="isLoading" placeholder="Задайте свой вопрос..."
                                 @keydown.enter.exact.prevent="handleSubmit" @input="autoResize" />
                             <div class="absolute right-3 bottom-3 text-xs opacity-50">
@@ -86,18 +97,6 @@
                         </button>
                     </div>
                 </form>
-
-                <!-- Error message -->
-                <div v-if="error" class="mt-3">
-                    <div class="alert alert-error rounded-xl">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>{{ error }}</span>
-                        <button class="btn btn-sm btn-ghost" @click="error = ''">Dismiss</button>
-                    </div>
-                </div>
             </div>
         </main>
     </div>

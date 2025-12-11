@@ -34,14 +34,14 @@ async def post_query(query_request: QueryRequest,
                      current_user: CurrentUserResponse = Depends(get_current_user),
                      rag=Depends(get_rag),
                      session: AsyncSession = Depends(get_session)):
-    # loop = asyncio.get_event_loop()
-    #
-    # # Выполняем CPU-bound операцию в отдельном потоке
-    # result = await loop.run_in_executor(
-    #     executor,
-    #     lambda: rag.interaction(query_request.question, query_request.context)  # ваша синхронная функция
-    # )
-    return QueryResponse(answer='result', confidence=0.95,
+    loop = asyncio.get_event_loop()
+
+    # Выполняем CPU-bound операцию в отдельном потоке
+    result = await loop.run_in_executor(
+        executor,
+        lambda: rag.semsearch_debug(query_request.question, 6)  # ваша синхронная функция
+    )
+    return QueryResponse(answer='!', confidence=0.95,
                          sources=[], related_topic=[])
 
 
