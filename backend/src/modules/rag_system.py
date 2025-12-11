@@ -107,8 +107,11 @@ class RAG:
     def semsearch_debug(self, query, k):
         self.semantic_search.search_debuging(query, k=k)
 
+    def keyword_extraction_debug(self, query):
+        print(self.semantic_search.extract_keywords(query))
+
     def rag_rating(self):
-        pass
+     pass
 
 
 rag = RAG('src/static/docs/', 'src/vector_db/', '*.md')
