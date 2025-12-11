@@ -41,3 +41,4 @@ class LLM:
     def docs_chunker(self, docs, docs_prompt):
         chunked_docs = [self.model.no_context_response(docs_prompt + doc).content.split('\n\n') for doc in docs]
         return chunked_docs
+
