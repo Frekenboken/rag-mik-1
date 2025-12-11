@@ -3,7 +3,7 @@ import Navbar from './components/Navbar.vue';
 </script>
 
 <template>
-  <div data-theme="forest">
+  <div data-theme="winter">
 
 
 
