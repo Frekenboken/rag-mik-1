@@ -1,7 +1,7 @@
 <template>
     <!-- Sidebar -->
     <aside class="border-r border-base-300 p-4 flex flex-col gap-4 bg-base-100">
-        <div class="text-xl font-semibold mb-2">Knowledge Base</div>
+        <div class="text-xl font-semibold mb-2">База знаний</div>
 
         <!-- File List -->
         <div class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scroll">

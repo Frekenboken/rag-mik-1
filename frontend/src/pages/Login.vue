@@ -1,31 +1,32 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center">
-    <div class="bg-white p-10 rounded-xl shadow-lg w-full max-w-md">
-      <h1 class="text-2xl font-bold mb-6 text-center text-blue-600">Вход</h1>
-
-      <form @submit.prevent="onSubmit" class="space-y-4">
-        <div>
-          <label class="block text-gray-700 mb-1">Email</label>
-          <input v-model="email" type="email" required
-            class="text-accent-content w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+  <div class="flex-grow flex flex-col p-2">
+    <div class="grid grid-cols-1 md:grid-cols-6 gap-2 flex-grow">
+      <div class="col-span-6 max-h-full flex items-center justify-center">
+        <div class="bg-base-100 p-10 rounded-xl shadow-lg w-full max-w-md">
+          <h1 class="text-2xl font-bold mb-6 text-center text-primary">Вход</h1>
+          <form @submit.prevent="onSubmit" class="space-y-4">
+            <div>
+              <label class="block text-base-content mb-1">Email</label>
+              <input v-model="email" type="email" required
+                class="bg-base-200 text-base-content w-full px-4 py-2 border border-base-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-base-content mb-1">Пароль</label>
+              <input v-model="password" type="password" required
+                class="bg-base-200 text-base-content w-full px-4 py-2 border border-base-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none" />
+            </div>
+            <button :disabled="loading"
+              class="w-full bg-primary text-primary-content py-2 rounded-lg hover:bg-primary/90 transition disabled:opacity-50">
+              {{ loading ? 'Вход...' : 'Войти' }}
+            </button>
+          </form>
+          <p class="mt-4 text-base-content text-center">
+            Нет аккаунта?
+            <router-link to="/register" class="text-secondary hover:underline">Регистрация</router-link>
+          </p>
+          <p v-if="error" class="mt-3 text-error text-center">{{ error }}</p>
         </div>
-
-        <div>
-          <label class="block text-gray-700 mb-1">Пароль</label>
-          <input v-model="password" type="password" required
-            class="text-accent-content w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
-        </div>
-
-        <button :disabled="loading" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-          {{ loading ? 'Вход...' : 'Войти' }}
-        </button>
-      </form>
-
-      <p class="mt-4 text-gray-600 text-center">
-        Нет аккаунта? <router-link to="/register" class="text-green-600 hover:underline">Регистрация</router-link>
-      </p>
-
-      <p v-if="error" class="mt-3 text-red-500 text-center">{{ error }}</p>
+      </div>
     </div>
   </div>
 </template>

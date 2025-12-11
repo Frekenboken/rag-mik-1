@@ -6,7 +6,7 @@ import Register from '../pages/Register.vue'
 import { useAuthStore } from '../stores/auth'
 
 const routes = [
-  { path: '/', name: 'Home', component: Home },
+  { path: '/', name: 'Home', component: Home, meta: { requiresAuth: true }},
   { path: '/login', name: 'Login', component: Login },
   { path: '/register', name: 'Register', component: Register }
 ]

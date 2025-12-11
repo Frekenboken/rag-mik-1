@@ -1,5 +1,5 @@
 <template>
-  <nav class="bg-base-100">
+  <nav class="bg-primary/10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16 items-center">
         <!-- Логотип -->
@@ -7,25 +7,10 @@
           <router-link to="/">
             <div>
               <h1 class="text-2xl lg:text-2xl font-bold text-primary">
-                CargoFlow
-                <template v-if="user?.role === 'admin'">Admin</template>
-                <template v-else-if="user?.role === 'manager'">Manager</template>
-                <template v-else-if="user?.role === 'driver'">Driver</template>
-                <template v-else>User</template>
+                RAG System
               </h1>
               <p class="text-xs text-base-content opacity-70">
-                <template v-if="user?.role === 'admin'">
-                  🔧 Панель администратора
-                </template>
-                <template v-else-if="user?.role === 'manager'">
-                  📊 Панель управления перевозками
-                </template>
-                <template v-else-if="user?.role === 'driver'">
-                  🚛 Мобильный рабочий кабинет
-                </template>
-                <template v-else>
-                  Система управления грузоперевозками
-                </template>
+                Помощь в эксплуатации МИК-1
               </p>
             </div>
           </router-link>
@@ -41,12 +26,13 @@
           <div v-if="isAuthenticated" class="dropdown dropdown-end">
             <label tabindex="0" class="btn btn-ghost btn-circle avatar">
               <div class="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                <img :src="user.value?.avatar || 'https://i.pravatar.cc/100?u=f' + user.value?.email" alt="avatar" />
+                <img :src="`https://ui-avatars.com/api/?name=${user.email}&size=256&background=222&color=999`"
+                  alt="avatar" />
               </div>
             </label>
-            <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box shadow-md mt-3 w-52">
-              <li><router-link to="/profile">👤 Профиль</router-link></li>
-              <li><router-link to="/settings">⚙ Настройки</router-link></li>
+            <ul tabindex="0" class="menu menu-md dropdown-content bg-base-300 rounded-b-xl shadow-md mt-3 w-36">
+              <!-- <li><router-link to="/profile">👤 Профиль</router-link></li>
+              <li><router-link to="/settings">⚙ Настройки</router-link></li> -->
               <li><button @click="onLogout">🚪 Выйти</button></li>
             </ul>
           </div>
@@ -99,7 +85,6 @@ const onLogout = async () => {
 const menuItems = computed(() => {
   if (!isAuthenticated.value) {
     return [
-      { name: 'Главная', to: '/' },
       { name: 'Вход', to: '/login' },
       { name: 'Регистрация', to: '/register' }
     ]
