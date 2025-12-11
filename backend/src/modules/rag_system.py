@@ -44,17 +44,23 @@ class RAG:
 
         print('Поиск обработанных документов...')
         try:
-            with open(docs_path+'docs.bin', 'rb') as docs: self.docs = pickle.load(docs)
-            with open(docs_path+'all_chunks.bin', 'rb') as all_chunks: self.all_chunks = pickle.load(all_chunks)
-            with open(docs_path+'chunks_with_meta.bin', 'rb') as chunks_with_meta: self.chunks_with_meta = pickle.load(chunks_with_meta)
+            with open(docs_path + '../' + 'docs.bin', 'rb') as docs:
+                self.docs = pickle.load(docs)
+            with open(docs_path + '../' + 'all_chunks.bin', 'rb') as all_chunks:
+                self.all_chunks = pickle.load(all_chunks)
+            with open(docs_path + '../' + 'chunks_with_meta.bin', 'rb') as chunks_with_meta:
+                self.chunks_with_meta = pickle.load(chunks_with_meta)
             print('Документы найдены!')
         except:
             print('Обработанные документы не найдены\nОбработка документов...')
             self.docs = self.documents_loader.process_docs()
             self.all_chunks, self.chunks_with_meta = self.chunker.advanced_separate(self.docs)
-            with open(docs_path+'docs.bin', 'wb') as docs: pickle.dump(self.docs, docs)
-            with open(docs_path+'all_chunks.bin', 'wb') as all_chunks: pickle.dump(self.all_chunks, all_chunks)
-            with open(docs_path+'chunks_with_meta.bin', 'wb') as chunks_with_meta: pickle.dump(self.chunks_with_meta, chunks_with_meta)
+            with open(docs_path + '../' + 'docs.bin', 'wb') as docs:
+                pickle.dump(self.docs, docs)
+            with open(docs_path + '../' + 'all_chunks.bin', 'wb') as all_chunks:
+                pickle.dump(self.all_chunks, all_chunks)
+            with open(docs_path + '../' + 'chunks_with_meta.bin', 'wb') as chunks_with_meta:
+                pickle.dump(self.chunks_with_meta, chunks_with_meta)
             print('Завершено!')
 
         print("Поиск эмбеддингов...")
@@ -85,7 +91,6 @@ class RAG:
         else:
             raise DimensionMismatch(dimension, self.index.d)
 
-
         try:
             self.semantic_search = SemanticSearch(self.index, self.chunks_with_meta, self.rerank, self.embedder)
         except:
@@ -95,12 +100,15 @@ class RAG:
     def interaction(self, query, history, k=3):
         context = self.semantic_search.search(query, k=k)
         response = self.llm.context_response(history, ''.join([chunk[0] for chunk in context]), query)
-        return response.content + ('\nИсточники: ' + ', '.join([f'{source}, Раздел {x_topic}.{s_topic}' for chunk, s_topic, x_topic, source in context]) if context != [] else '')
+        return response.content + ('\nИсточники: ' + ', '.join(
+            [f'{source}, Раздел {x_topic}.{s_topic}' for chunk, s_topic, x_topic, source in
+             context]) if context != [] else '')
 
     def semsearch_debug(self, query, k):
         self.semantic_search.search_debuging(query, k=k)
 
     def rag_rating(self):
         pass
+
 
 rag = RAG('src/static/docs/', 'src/vector_db/', '*.md')

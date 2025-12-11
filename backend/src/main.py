@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.core.db import engine
 from src.models import Base, UserRole
-from src.routers import query, users
+from src.routers import rag, users
 from src.auth import router as auth
 
 from src.auth.security import security
@@ -24,7 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(query.router)
+app.include_router(rag.router)
 app.include_router(users.router)
 app.include_router(auth.router)
 
