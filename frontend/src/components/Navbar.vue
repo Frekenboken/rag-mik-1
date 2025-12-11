@@ -1,15 +1,15 @@
 <template>
-  <nav class="bg-primary/10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <nav class="bg-primary/10 rounded-xl p-1">
+    <div class="max-w-7xl mx-auto px-6">
       <div class="flex justify-between h-16 items-center">
         <!-- Логотип -->
         <div class="flex-shrink-0 flex items-center">
           <router-link to="/">
             <div>
-              <h1 class="text-2xl lg:text-2xl font-bold text-primary">
+              <h1 class="text-md 2xl:text-2xl font-bold text-primary">
                 RAG System
               </h1>
-              <p class="text-xs text-base-content opacity-70">
+              <p class="text-xs hidden 2xl:block text-base-content opacity-70">
                 Помощь в эксплуатации МИК-1
               </p>
             </div>
@@ -30,7 +30,7 @@
                   alt="avatar" />
               </div>
             </label>
-            <ul tabindex="0" class="menu menu-md dropdown-content bg-base-300 rounded-b-xl shadow-md mt-3 w-36">
+            <ul tabindex="0" class="menu menu-md dropdown-content bg-base-300 rounded-b-xl shadow-md mt-4 w-30">
               <!-- <li><router-link to="/profile">👤 Профиль</router-link></li>
               <li><router-link to="/settings">⚙ Настройки</router-link></li> -->
               <li><button @click="onLogout">🚪 Выйти</button></li>

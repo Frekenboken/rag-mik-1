@@ -1,5 +1,5 @@
 <script setup>
-import Navbar from './components/Navbar.vue';
+
 </script>
 
 <template>
@@ -9,8 +9,6 @@ import Navbar from './components/Navbar.vue';
 
     <!-- Верхний блок (на всю высоту экрана) -->
     <div class="min-h-screen flex flex-col bg-base-300">
-      <!-- Навбар -->
-      <Navbar></Navbar>
 
       <router-view />
 

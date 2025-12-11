@@ -1,16 +1,16 @@
 <template>
-    <div class="flex bg-base-200 text-base-content">
+    <div class="flex bg-base-300 text-base-content">
 
         <!-- Chat Area -->
         <main class="flex-1 flex flex-col">
             <!-- Header -->
-            <div class="border-b border-base-300 p-4 flex items-center justify-between bg-base-100">
+            <div class="border-b border-base-300 p-4 flex items-center justify-between bg-base-100 rounded-xl">
                 <div class="flex items-center gap-3">
                     <div class="text-lg font-semibold">Чат</div>
                     <div class="badge badge-primary">v1.0</div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button class="btn btn-sm rounded-xl btn-outline" @click="clearChat"
+                    <button class="btn btn-md rounded-xl btn-outline" @click="clearChat"
                         :disabled="messages.length === 0">
                         Очистить чат
                     </button>
@@ -35,13 +35,13 @@
                             </div>
 
                             <!-- Контент с Markdown -->
-                            <div class="message-content" v-html="parseMarkdown(message.content)">
+                            <div class="message-content text-lg" v-html="parseMarkdown(message.content)">
                             </div>
                         </div>
 
                         <!-- Время -->
                         <div :class="[
-                            'text-xs mt-1 px-2',
+                            'text-sm mt-1 px-2',
                             message.role === 'user' ? 'text-right text-primary/60' : 'text-base-content/60'
                         ]">
                             {{ formatTime(message.timestamp) }}
@@ -61,7 +61,7 @@
             </div>
 
             <!-- Input Area -->
-            <div class="p-4 border-t border-base-300 bg-base-100">
+            <div class="p-4 border-t border-base-300 bg-base-100 rounded-xl">
                 <form @submit.prevent="handleSubmit">
                     <div class="flex gap-3 items-end">
                         <div class="flex-1 relative">
@@ -107,9 +107,7 @@
 import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRagStore } from '../stores/rag'
 import { storeToRefs } from 'pinia'
-
 import { marked } from 'marked';
-
 
 // Refs
 const userInput = ref('')
@@ -125,6 +123,29 @@ const { messages, isLoading, error } = storeToRefs(chatStore)
 const elapsedTime = ref(0)
 let timer = null
 
+// Для отслеживания изменений в контенте
+const lastMessageCount = ref(0)
+const lastIsLoading = ref(false)
+
+// Автоматическая прокрутка при изменении контента
+const scrollToBottom = () => {
+    if (messagesContainer.value) {
+        requestAnimationFrame(() => {
+            messagesContainer.value.scrollTo({
+                top: messagesContainer.value.scrollHeight,
+                behavior: 'smooth'
+            })
+        })
+    }
+}
+
+// Фокус на поле ввода
+const focusInput = () => {
+    requestAnimationFrame(() => {
+        textareaRef.value?.focus()
+    })
+}
+
 watch(isLoading, (newVal) => {
     if (newVal) {
         // Начало загрузки
@@ -132,14 +153,42 @@ watch(isLoading, (newVal) => {
         timer = setInterval(() => {
             elapsedTime.value++
         }, 1000)
+
+        // Прокрутка при появлении индикатора загрузки
+        scrollToBottom()
     } else {
         // Конец загрузки
         if (timer) {
             clearInterval(timer)
             timer = null
         }
+
+        // Фокус на поле ввода после получения ответа
+        focusInput()
+
+        // Прокрутка после полной загрузки ответа
+        nextTick(scrollToBottom)
     }
 })
+
+// Основной вотчер для сообщений
+watch(() => [messages.value.length, messages.value[messages.value.length - 1]?.content],
+    ([newLength, lastContent], [oldLength, oldContent]) => {
+        // Если добавилось новое сообщение ИЛИ изменилось содержимое последнего сообщения
+        if (newLength > oldLength || lastContent !== oldContent) {
+            nextTick(() => {
+                scrollToBottom()
+            })
+        }
+    },
+    { deep: true }
+)
+
+// Альтернативный вариант: вотчер с использованием flush: 'post'
+watch(messages, () => {
+    // flush: 'post' гарантирует, что код выполнится после обновления DOM
+    nextTick(scrollToBottom)
+}, { deep: true, flush: 'post' })
 
 // Methods
 const autoResize = () => {
@@ -156,10 +205,15 @@ const handleSubmit = async () => {
     userInput.value = ''
     autoResize() // Reset textarea height
 
+    // Прокрутка перед отправкой
+    scrollToBottom()
+
     try {
         await sendQuestion(question)
     } catch (err) {
         console.error('Error in handleSubmit:', err)
+        // Фокус обратно при ошибке
+        focusInput()
     }
 }
 
@@ -174,22 +228,9 @@ const parseMarkdown = (text) => {
     // Вариант A: Простая замена
     const withBreaks = text.replace(/\n/g, '<br>');
     return marked(withBreaks);
-
-    // Вариант B: Для кода
-    return marked(text, {
-        breaks: true, // marked будет превращать \n в <br>
-        gfm: true
-    });
 };
 
 // Watchers
-watch(messages, async () => {
-    await nextTick()
-    if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-    }
-})
-
 watch(userInput, () => {
     nextTick(autoResize)
 })
@@ -197,7 +238,12 @@ watch(userInput, () => {
 // Lifecycle
 onMounted(() => {
     // Фокус на поле ввода при загрузке
-    textareaRef.value?.focus()
+    focusInput()
+
+    // Начальная прокрутка вниз, если есть сообщения
+    if (messages.value.length > 0) {
+        nextTick(scrollToBottom)
+    }
 })
 
 onUnmounted(() => {
