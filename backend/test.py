@@ -1,9 +1,10 @@
-from src.modules.rag_system import rag
+from src.modules.rag_system import RAG
 
-query = 'Какой максимальный вес стеклоизделия может контроллировать мик-1?'
-
-rag.semsearch_debug(query, k=5)
+rag = RAG('src/static/docs/', 'src/vector_db/', '*.md')
+query = 'Какой вес стеклоизделия может контроллировать мик-1?'
+rag.keyword_extraction_debug(query)
+'''rag.semsearch_debug(query, k=5)
 answer = rag.interaction(query, '')
 
 print(f'user: {query}\nLLM: {answer}')
-rag.keyword_extraction_debug(answer)
+rag.keyword_extraction_debug(query)'''

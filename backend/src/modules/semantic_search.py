@@ -1,13 +1,12 @@
 import faiss
 import re
 import string
-import nltk
+import pymorphy2
 
 from src.modules.rerank import Rerank
 from src.modules.text_embedder import TextEmbedder
 from difflib import SequenceMatcher
 from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 
@@ -22,7 +21,7 @@ class SemanticSearch:
         self.chunks = chunks
         self.rerank = rerank
         self.embedding = embedding
-        self.lemmatizer = WordNetLemmatizer()
+        self.morph = pymorphy2.MorphAnalyzer()
 
     def search_debuging(self, query_text, k=3):
         relevance = self.rerank.reranking_and_format(
@@ -60,7 +59,7 @@ class SemanticSearch:
         filtered_words = [word for word in words if word.lower() not in stop_words]
 
         # Лемматизируем каждое слово
-        lemmatized_words = [self.lemmatizer.lemmatize(word, pos='v') for word in filtered_words]
+        lemmatized_words = [self.morph.parse(word)[0].normal_form for word in filtered_words]
 
         tagged_lemmatized_words = pos_tag(lemmatized_words, lang='rus')
 
