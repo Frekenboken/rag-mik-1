@@ -100,7 +100,7 @@ class RAG:
     def interaction(self, query, history, k=3):
         context = self.semantic_search.search(query, k=k)
         response = self.llm.context_response(history, ''.join([chunk[0] for chunk in context]), query)
-        return response.content + ('\nИсточники: ' + ', '.join(
+        return response.content + ('\n\nИсточники: ' + ', '.join(
             [f'{source}, Раздел {x_topic}.{s_topic}' for chunk, s_topic, x_topic, source in
              context]) if context != [] else '')
 
@@ -109,6 +109,3 @@ class RAG:
 
     def rag_rating(self):
         pass
-
-
-rag = RAG('src/static/docs/', 'src/vector_db/', '*.md')
