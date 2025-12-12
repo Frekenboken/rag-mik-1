@@ -69,8 +69,8 @@ class SemanticSearch:
         lemmatized_words = [self.morph.parse(word)[0].normal_form for word in filtered_words]
 
         tagged_lemmatized_words = pos_tag(lemmatized_words, lang='rus')
-
-        return [i[0] for i in filter(lambda x: x[1] == 'S', tagged_lemmatized_words)]
+        #print(tagged_lemmatized_words)
+        return [i[0] for i in filter(lambda x: x[1] in ('S', 'NONLEX', 'INTJ'), tagged_lemmatized_words)]
         #return tagged_lemmatized_words
 
     def calculate_similarity(self, answer: str, expected: str) -> float:
@@ -105,3 +105,4 @@ class SemanticSearch:
         final_score = (numbers_match * 0.4 + text_similarity * 0.3 + keywords_found * 0.3)
 
         return final_score
+

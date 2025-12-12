@@ -73,3 +73,23 @@ class Chunker:
             for chunk in self.splitter.split_text(podglava)]
 
         return [all_chunks, podglavas_with_meta_for_index]
+
+    def questions_process(self, questionss):
+        processed_questions = []
+        ind = 1
+        for questions in questionss:
+            for blocks in re.split(r'\n##\s', questions.page_content[questions.page_content.find('##'):questions.page_content.rfind('\n## ')]):
+                for question in enumerate(re.split(r'\n###\s', blocks)):
+                    if question[0] == 0:
+                        c = re.search(r'.*:', question[1])
+                        category = question[1][c.end()+1:question[1].rfind('\n')]
+                        continue
+                    q = re.search(r'\*\*Q:\*\*\s', question[1])
+                    a = re.search(r'\*\*A:\*\*\s', question[1])
+                    i = re.search(r'\*\*Источник:\*\*\s', question[1])
+                    quest = question[1][q.end():a.start()-1]
+                    answer = question[1][a.end():i.start()-1]
+                    processed_questions.append((ind, category, quest, answer))
+                    ind+=1
+        print(f'{ind-1} вопросов загружено')
+        return processed_questions
