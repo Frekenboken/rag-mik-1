@@ -127,11 +127,11 @@ class RAG:
         ind = quest[0]
         expected_answer = quest[3]
         start_time = time.time()
-        actual_answer = self.interaction(query, '')
+        actual_answer = self.interaction(query, '') + ' '
         response_time = time.time() - start_time
         # Расчет схожести
         similarity = self.semantic_search.calculate_similarity(
-            actual_answer,
+            actual_answer[:actual_answer.rfind('Источники')],
             expected_answer
         )
 
