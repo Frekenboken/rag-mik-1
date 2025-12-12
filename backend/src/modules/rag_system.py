@@ -159,7 +159,7 @@ class RAG:
             'score': score,
             'status': status,
             'has_sources': has_sources,
-            'confidence': 100,
+            'confidence': 0.85,
             'response_time': response_time,
             'error': 'everytime'
         }
