@@ -39,9 +39,9 @@ async def post_query(query_request: QueryRequest,
     # Выполняем CPU-bound операцию в отдельном потоке
     result = await loop.run_in_executor(
         executor,
-        lambda: rag.semsearch_debug(query_request.question, 3)  # ваша синхронная функция
+        lambda: rag.interaction(query_request.question, query_request.context, k=10, d=3)  # ваша синхронная функция
     )
-    return QueryResponse(answer='!', confidence=0.95,
+    return QueryResponse(answer=result, confidence=0.95,
                          sources=[], related_topic=[])
 
 

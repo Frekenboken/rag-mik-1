@@ -16,8 +16,8 @@ class DocumentsLoader:
 
 class Chunker:
     def __init__(self):
-        self.chunk_size = 200
-        self.chunk_overlap = np.round(self.chunk_size * 0.5, 0)
+        self.chunk_size = 250
+        self.chunk_overlap = np.round(self.chunk_size * 0.125, 0)
         print(f"chunk_size: {self.chunk_size}, chunk_overlap: {self.chunk_overlap}")
 
         self.splitter = RecursiveCharacterTextSplitter(

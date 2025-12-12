@@ -97,8 +97,8 @@ class RAG:
             raise ModuleLoadingFailure(SemanticSearch)
         print('RAG система инициализированна')
 
-    def interaction(self, query, history, k=3):
-        context = self.semantic_search.search(query, k=k)
+    def interaction(self, query, history, k=3, d=2):
+        context = set(self.semantic_search.search(query, k=k)[:d])
         response = self.llm.context_response(history, ''.join([chunk[0] for chunk in context]), query)
         return response.content + ('\n\nИсточники: ' + ', '.join(
             [f'{source}, Раздел {x_topic}.{s_topic}' for chunk, s_topic, x_topic, source in
