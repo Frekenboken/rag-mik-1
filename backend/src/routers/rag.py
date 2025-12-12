@@ -26,7 +26,7 @@ router = APIRouter(prefix="/rag", tags=["rag"])
 @lru_cache()
 def get_rag() -> RAG:
     print("Инициализирую RAG...")
-    return RAG('src/static/docs/', 'src/vector_db/', '*.md')
+    return RAG('src/static/questions/', 'src/static/docs/', 'src/vector_db/', '*.md')
 
 
 @router.post("/query", response_model=QueryResponse)
