@@ -9,6 +9,7 @@ import faiss
 import pickle
 import numpy as np
 import time
+import json
 
 
 class RAG:
@@ -161,7 +162,7 @@ class RAG:
             'confidence': 100,
             'response_time': response_time,
             'error': 'everytime'
-        }
+        }, actual_answer
 
     def rag_rating(self):
         results = []
@@ -178,8 +179,8 @@ class RAG:
             category = test_q[1]
             print(f"📝 Тест {i}/{len(self.processed_questions)}: {query[:50]}...")
 
-            result = self.one_ans_rate(test_q)
-
+            result, res = self.one_ans_rate(test_q)
+            print(f"Ответ: {res[:100]}")
 
             results.append(result)
             total_score += result['score']
@@ -238,13 +239,13 @@ class RAG:
             print(f"   Набрано баллов: {final_results['total_score']:.1f} / {final_results['max_possible']:.1f}")
             print(f"   Процент: {final_results['percentage']:.1f}%")
             print(f"   Оценка: ", end='')
-            if results['percentage'] >= 90:
+            if final_results['percentage'] >= 90:
                 print("🏆 Отлично (A)")
-            elif results['percentage'] >= 80:
+            elif final_results['percentage'] >= 80:
                 print("👍 Хорошо (B)")
-            elif results['percentage'] >= 70:
+            elif final_results['percentage'] >= 70:
                 print("✔️ Удовлетворительно (C)")
-            elif results['percentage'] >= 60:
+            elif final_results['percentage'] >= 60:
                 print("⚠️ Достаточно (D)")
             else:
                 print("❌ Неудовлетворительно (F)")
@@ -277,17 +278,17 @@ class RAG:
             criteria_not_met = []
 
             # Проверка критериев
-            if final_results['category_scores'].items()[0]['percentage'] >= 90:
+            if final_results['category_scores'][list(final_results['category_scores'].keys())[0]]['percentage'] >= 90:
                 criteria_met.append("✓ Простые вопросы ≥ 90%")
             else:
                 criteria_not_met.append("✗ Простые вопросы < 90%")
 
-            if final_results['category_scores'].items()[1]['percentage'] >= 80:
+            if final_results['category_scores'][final_results['category_scores'].keys()[0]]['percentage'] >= 80:
                 criteria_met.append("✓ Средние вопросы ≥ 80%")
             else:
                 criteria_not_met.append("✗ Средние вопросы < 80%")
 
-            if final_results['category_scores'].items()[2]['percentage'] >= 60:
+            if final_results['category_scores'][final_results['category_scores'].keys()[0]]['percentage'] >= 60:
                 criteria_met.append("✓ Сложные вопросы ≥ 60%")
             else:
                 criteria_not_met.append("✗ Сложные вопросы < 60%")
@@ -303,3 +304,24 @@ class RAG:
                 print(f"   {criterion}")
 
             print("\n" + "=" * 60)
+
+        compact_results = {k: v for k, v in final_results.items() if k != 'detailed_results'}
+
+        with open('src/rag_evaluation/evaluation_results.json', 'w', encoding='utf-8') as f:
+            json.dump(compact_results, f, ensure_ascii=False, indent=2)
+
+        print(f"\n💾 Результаты сохранены в evaluation_results.json")
+
+        # Сохранение детального отчета
+        with open('src/rag_evaluation/evaluation_detailed.txt', 'w', encoding='utf-8') as f:
+            f.write("ДЕТАЛЬНЫЙ ОТЧЕТ ОЦЕНКИ RAG-СИСТЕМЫ МИК-1\n")
+            f.write("=" * 60 + "\n\n")
+
+            for result in final_results['detailed_results']:
+                f.write(f"Вопрос {result['question_id']}: {result['question']}\n")
+                f.write(f"Ожидаемый ответ: {result['expected_answer']}\n")
+                f.write(f"Полученный ответ: {result['received_answer']}\n")
+                f.write(f"Статус: {result['status']} | Схожесть: {result['similarity']:.2%}\n")
+                f.write("-" * 60 + "\n\n")
+
+        print(f"📄 Детальный отчет сохранен в evaluation_detailed.txt")
