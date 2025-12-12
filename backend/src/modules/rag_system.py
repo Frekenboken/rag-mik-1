@@ -210,101 +210,101 @@ class RAG:
                 'count': scores['count']
             }
 
-            # Дополнительные метрики
-            correct_answers = sum(1 for r in results if r['score'] == 0.8)
-            partial_answers = sum(1 for r in results if r['score'] == 0.4)
-            wrong_answers = sum(1 for r in results if r['score'] == 0)
+        # Дополнительные метрики
+        correct_answers = sum(1 for r in results if r['score'] == 0.8)
+        partial_answers = sum(1 for r in results if r['score'] == 0.4)
+        wrong_answers = sum(1 for r in results if r['score'] == 0)
 
-            avg_confidence = sum(r['confidence'] for r in results) / len(results) if results else 0
-            avg_response_time = sum(r['response_time'] for r in results) / len(results) if results else 0
+        avg_confidence = sum(r['confidence'] for r in results) / len(results) if results else 0
+        avg_response_time = sum(r['response_time'] for r in results) / len(results) if results else 0
 
-            final_results = {
-                'total_score': total_score,
-                'max_possible': max_possible,
-                'percentage': (total_score / max_possible * 100) if max_possible > 0 else 0,
-                'questions_tested': len(self.processed_questions),
-                'correct_answers': correct_answers,
-                'partial_answers': partial_answers,
-                'wrong_answers': wrong_answers,
-                'category_scores': category_percentages,
-                'avg_confidence': avg_confidence,
-                'avg_response_time': avg_response_time,
-                'detailed_results': results
+        final_results = {
+            'total_score': total_score,
+            'max_possible': max_possible,
+            'percentage': (total_score / max_possible * 100) if max_possible > 0 else 0,
+            'questions_tested': len(self.processed_questions),
+            'correct_answers': correct_answers,
+            'partial_answers': partial_answers,
+            'wrong_answers': wrong_answers,
+            'category_scores': category_percentages,
+            'avg_confidence': avg_confidence,
+            'avg_response_time': avg_response_time,
+            'detailed_results': results
             }
-            print("\n" + "=" * 60)
-            print("📊 ОТЧЕТ ОБ ОЦЕНКЕ RAG-СИСТЕМЫ")
-            print("=" * 60 + "\n")
+        print("\n" + "=" * 60)
+        print("📊 ОТЧЕТ ОБ ОЦЕНКЕ RAG-СИСТЕМЫ")
+        print("=" * 60 + "\n")
 
-            # Основные метрики
-            print("🎯 ИТОГОВЫЕ БАЛЛЫ:")
-            print(f"   Набрано баллов: {final_results['total_score']:.1f} / {final_results['max_possible']:.1f}")
-            print(f"   Процент: {final_results['percentage']:.1f}%")
-            print(f"   Оценка: ", end='')
-            if final_results['percentage'] >= 90:
-                print("🏆 Отлично (A)")
-            elif final_results['percentage'] >= 80:
-                print("👍 Хорошо (B)")
-            elif final_results['percentage'] >= 70:
-                print("✔️ Удовлетворительно (C)")
-            elif final_results['percentage'] >= 60:
-                print("⚠️ Достаточно (D)")
-            else:
-                print("❌ Неудовлетворительно (F)")
-            print()
+        # Основные метрики
+        print("🎯 ИТОГОВЫЕ БАЛЛЫ:")
+        print(f"   Набрано баллов: {final_results['total_score']:.1f} / {final_results['max_possible']:.1f}")
+        print(f"   Процент: {final_results['percentage']:.1f}%")
+        print(f"   Оценка: ", end='')
+        if final_results['percentage'] >= 90:
+            print("🏆 Отлично (A)")
+        elif final_results['percentage'] >= 80:
+            print("👍 Хорошо (B)")
+        elif final_results['percentage'] >= 70:
+            print("✔️ Удовлетворительно (C)")
+        elif final_results['percentage'] >= 60:
+            print("⚠️ Достаточно (D)")
+        else:
+            print("❌ Неудовлетворительно (F)")
+        print()
 
-            # Статистика ответов
-            print("📈 СТАТИСТИКА ОТВЕТОВ:")
-            print(
-                f"   ✅ Правильных: {final_results['correct_answers']} ({final_results['correct_answers'] / final_results['questions_tested'] * 100:.1f}%)")
-            print(
-                f"   ⚠️ Частичных: {final_results['partial_answers']} ({final_results['partial_answers'] / final_results['questions_tested'] * 100:.1f}%)")
-            print(
-                f"   ❌ Неправильных: {final_results['wrong_answers']} ({final_results['wrong_answers'] / final_results['questions_tested'] * 100:.1f}%)")
-            print()
+        # Статистика ответов
+        print("📈 СТАТИСТИКА ОТВЕТОВ:")
+        print(
+            f"   ✅ Правильных: {final_results['correct_answers']} ({final_results['correct_answers'] / final_results['questions_tested'] * 100:.1f}%)")
+        print(
+            f"   ⚠️ Частичных: {final_results['partial_answers']} ({final_results['partial_answers'] / final_results['questions_tested'] * 100:.1f}%)")
+        print(
+            f"   ❌ Неправильных: {final_results['wrong_answers']} ({final_results['wrong_answers'] / final_results['questions_tested'] * 100:.1f}%)")
+        print()
 
-            # По категориям
-            print("📂 ПО КАТЕГОРИЯМ:")
-            for cat, scores in final_results['category_scores'].items():
-                print(f"   {cat}: {scores['percentage']:.1f}% ({scores['earned']:.1f}/{scores['total']:.1f} баллов)")
-            print()
-            # Производительность
-            print("⚡ ПРОИЗВОДИТЕЛЬНОСТЬ:")
-            print(f"   Средняя уверенность: {final_results['avg_confidence']:.2%}")
-            print(f"   Среднее время ответа: {final_results['avg_response_time']:.2f} сек")
-            print()
+        # По категориям
+        print("📂 ПО КАТЕГОРИЯМ:")
+        for cat, scores in final_results['category_scores'].items():
+            print(f"   {cat}: {scores['percentage']:.1f}% ({scores['earned']:.1f}/{scores['total']:.1f} баллов)")
+        print()
+        # Производительность
+        print("⚡ ПРОИЗВОДИТЕЛЬНОСТЬ:")
+        print(f"   Средняя уверенность: {final_results['avg_confidence']:.2%}")
+        print(f"   Среднее время ответа: {final_results['avg_response_time']:.2f} сек")
+        print()
 
-            # Критерии оценки по ТЗ
-            print("✅ СООТВЕТСТВИЕ КРИТЕРИЯМ:")
-            criteria_met = []
-            criteria_not_met = []
+        # Критерии оценки по ТЗ
+        print("✅ СООТВЕТСТВИЕ КРИТЕРИЯМ:")
+        criteria_met = []
+        criteria_not_met = []
 
-            # Проверка критериев
-            if final_results['category_scores'][list(final_results['category_scores'].keys())[0]]['percentage'] >= 90:
-                criteria_met.append("✓ Простые вопросы ≥ 90%")
-            else:
-                criteria_not_met.append("✗ Простые вопросы < 90%")
+        # Проверка критериев
+        if final_results['category_scores'][list(final_results['category_scores'].keys())[0]]['percentage'] >= 90:
+            criteria_met.append("✓ Простые вопросы ≥ 90%")
+        else:
+            criteria_not_met.append("✗ Простые вопросы < 90%")
 
-            if final_results['category_scores'][list(final_results['category_scores'].keys())[0]]['percentage'] >= 80:
-                criteria_met.append("✓ Средние вопросы ≥ 80%")
-            else:
-                criteria_not_met.append("✗ Средние вопросы < 80%")
+        if final_results['category_scores'][list(final_results['category_scores'].keys())[1]]['percentage'] >= 80:
+            criteria_met.append("✓ Средние вопросы ≥ 80%")
+        else:
+            criteria_not_met.append("✗ Средние вопросы < 80%")
 
-            if final_results['category_scores'][list(final_results['category_scores'].keys())[0]]['percentage'] >= 60:
-                criteria_met.append("✓ Сложные вопросы ≥ 60%")
-            else:
-                criteria_not_met.append("✗ Сложные вопросы < 60%")
+        if sum([final_results['category_scores'][i]['percentage'] for i in list(final_results['category_scores'].keys())[3:]])/len(list(final_results['category_scores'].keys())[3:])  >= 60:
+            criteria_met.append("✓ Сложные вопросы ≥ 60%")
+        else:
+            criteria_not_met.append("✗ Сложные вопросы < 60%")
 
-            if final_results['percentage'] >= 75:
-                criteria_met.append("✓ Общая точность ≥ 75%")
-            else:
-                criteria_not_met.append("✗ Общая точность < 75%")
+        if final_results['percentage'] >= 75:
+            criteria_met.append("✓ Общая точность ≥ 75%")
+        else:
+            criteria_not_met.append("✗ Общая точность < 75%")
 
-            for criterion in criteria_met:
-                print(f"   {criterion}")
-            for criterion in criteria_not_met:
-                print(f"   {criterion}")
+        for criterion in criteria_met:
+            print(f"   {criterion}")
+        for criterion in criteria_not_met:
+            print(f"   {criterion}")
 
-            print("\n" + "=" * 60)
+        print("\n" + "=" * 60)
 
         compact_results = {k: v for k, v in final_results.items() if k != 'detailed_results'}
 
