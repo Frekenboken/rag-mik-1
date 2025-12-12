@@ -11,14 +11,11 @@ from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 
 import nltk
-# Скачайте все необходимые данные
+
 nltk.download('punkt')
 nltk.download('punkt_tab')
 nltk.download('stopwords')
 nltk.download('averaged_perceptron_tagger_rus')
-
-# Для русского языка также может понадобиться
-# nltk.download('rslp')  # для стемминга
 
 
 class SemanticSearch:
@@ -48,30 +45,24 @@ class SemanticSearch:
             query_text.lower(),
             self.chunks
             )
-         # return [self.chunks[idx] for similarity, idx in filter(lambda x: x[0] > 0.17, relevance)]
          return [self.chunks[idx] for similarity, idx in relevance]
 
     def extract_keywords(self, text):
 
-        # Удаляем знаки препинания с помощью string.punctuation
         cleaned_text = ''.join(char for char in text if char not in string.punctuation)
 
-        # Токенизация слов
         words = word_tokenize(cleaned_text)
 
-        # Загрузить список стоп-слов NLTK
         stop_words = set(stopwords.words('russian'))
 
-        # Отфильтровать стоп-слова
         filtered_words = [word for word in words if word.lower() not in stop_words]
 
-        # Лемматизируем каждое слово
         lemmatized_words = [self.morph.parse(word)[0].normal_form for word in filtered_words]
 
         tagged_lemmatized_words = pos_tag(lemmatized_words, lang='rus')
-        #print(tagged_lemmatized_words)
+
         return [i[0] for i in filter(lambda x: x[1] in ('S', 'NONLEX', 'INTJ'), tagged_lemmatized_words)]
-        #return tagged_lemmatized_words
+
 
     def calculate_similarity(self, answer: str, expected: str) -> float:
         """

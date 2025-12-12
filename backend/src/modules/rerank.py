@@ -25,7 +25,6 @@ class Rerank:
         torch.set_num_threads(os.cpu_count() or 4)
 
     def reranking_and_format(self, chunk_indices, query_text, all_chunks, batch_size=8):
-        # Для CPU используем меньший размер батча
         pairs = [[query_text, all_chunks[i][0].lower()] for i in chunk_indices]
 
         scores = []
@@ -38,7 +37,7 @@ class Rerank:
                 padding=True,
                 truncation=True,
                 return_tensors="pt",
-                max_length=512  # Еще меньше для скорости
+                max_length=512
             )
 
             with torch.no_grad():
