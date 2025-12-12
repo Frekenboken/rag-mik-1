@@ -102,7 +102,7 @@ class SemanticSearch:
             keywords_found = 1.0
 
         # Комбинированная оценка
-        final_score = (numbers_match * 0.4 + text_similarity * 0.3 + keywords_found * 0.3)
+        final_score = (numbers_match * 0.45 + text_similarity * 0.4 + keywords_found * 0.3)
 
         return final_score
 
