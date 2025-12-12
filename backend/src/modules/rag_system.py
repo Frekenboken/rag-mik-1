@@ -162,7 +162,7 @@ class RAG:
             'confidence': 100,
             'response_time': response_time,
             'error': 'everytime'
-        }, actual_answer
+        }
 
     def rag_rating(self):
         results = []
@@ -179,8 +179,8 @@ class RAG:
             category = test_q[1]
             print(f"📝 Тест {i}/{len(self.processed_questions)}: {query[:50]}...")
 
-            result, res = self.one_ans_rate(test_q)
-            print(f"Ответ: {res[:100]}")
+            result = self.one_ans_rate(test_q)
+            print(f"Ответ: {result['received_answer'][:200]}")
 
             results.append(result)
             total_score += result['score']
@@ -194,7 +194,7 @@ class RAG:
             print(f"   {result['status']} | Схожесть: {result['similarity']:.2%} | Баллы: {result['score']}")
 
             # Небольшая задержка между запросами
-            time.sleep(0.5)
+            time.sleep(0.25)
 
         max_possible = len(self.processed_questions) * 0.8
 
@@ -283,12 +283,12 @@ class RAG:
             else:
                 criteria_not_met.append("✗ Простые вопросы < 90%")
 
-            if final_results['category_scores'][final_results['category_scores'].keys()[0]]['percentage'] >= 80:
+            if final_results['category_scores'][list(final_results['category_scores'].keys())[0]]['percentage'] >= 80:
                 criteria_met.append("✓ Средние вопросы ≥ 80%")
             else:
                 criteria_not_met.append("✗ Средние вопросы < 80%")
 
-            if final_results['category_scores'][final_results['category_scores'].keys()[0]]['percentage'] >= 60:
+            if final_results['category_scores'][list(final_results['category_scores'].keys())[0]]['percentage'] >= 60:
                 criteria_met.append("✓ Сложные вопросы ≥ 60%")
             else:
                 criteria_not_met.append("✗ Сложные вопросы < 60%")
