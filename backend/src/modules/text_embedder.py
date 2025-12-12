@@ -10,7 +10,7 @@ class TextEmbedder:
     def get_embeddings(self, texts):
         with torch.no_grad():
             inputs = self.tokenizer(texts, padding=True, truncation=True,
-                                  max_length=128, return_tensors='pt')
+                                  max_length=512, return_tensors='pt')
             outputs = self.model(**inputs)
 
             embeddings = outputs.last_hidden_state[:, 0, :]

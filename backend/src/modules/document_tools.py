@@ -16,8 +16,8 @@ class DocumentsLoader:
 
 class Chunker:
     def __init__(self):
-        self.chunk_size = 500
-        self.chunk_overlap = np.round(self.chunk_size * 0.30, 0)
+        self.chunk_size = 250
+        self.chunk_overlap = np.round(self.chunk_size * 0.125, 0)
         print(f"chunk_size: {self.chunk_size}, chunk_overlap: {self.chunk_overlap}")
 
         self.splitter = RecursiveCharacterTextSplitter(
@@ -58,7 +58,7 @@ class Chunker:
             for doc in docs
             for index_glava, glava in enumerate(re.split(r'\n##\s', doc.page_content), 1)
             for index_podglava, podglava in enumerate(re.split(r'\n###\s', glava), 1)
-            if podglava.strip() and not re.match(r'\*\*[\w\s]*\*\*\n', podglava)
+            if podglava.strip() and not re.match(r'\*\*[\w\s]*\*\*\n$', podglava)
         ][1:]
 
         all_chunks = [
