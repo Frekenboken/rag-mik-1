@@ -112,6 +112,10 @@ class RAG:
     def interaction(self, query, history, k=3, d=2):
         context = set(self.semantic_search.search(query, k=k)[:d])
         response = self.llm.context_response(history, ''.join([chunk[0] for chunk in context]), query)
+
+        if "В базе данных нет информации по этому вопросу" in response.content:
+            return response.content
+
         return response.content + ('\n\nИсточники: ' + ', '.join(
             [f'{source}, Раздел {x_topic}.{s_topic}' for chunk, s_topic, x_topic, source in
              context]) if context != [] else '')
