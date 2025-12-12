@@ -31,6 +31,7 @@ class RAG:
             raise ModuleLoadingFailure(Rerank)
         try:
             self.llm = LLM(context_prompt)
+            pass
         except:
             raise ModuleLoadingFailure(LLM)
         try:

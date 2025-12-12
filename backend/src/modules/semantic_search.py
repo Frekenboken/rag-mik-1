@@ -97,12 +97,12 @@ class SemanticSearch:
         # Проверка ключевых слов
         keywords = self.extract_keywords(expected)
         if keywords:
-            keywords_found = sum(1 for kw in keywords if kw in answer) / len(keywords)
+            keywords_found = sum(1 for kw in keywords if kw in self.extract_keywords(answer)) / len(keywords)
         else:
             keywords_found = 1.0
 
         # Комбинированная оценка
-        final_score = (numbers_match * 0.45 + text_similarity * 0.35 + keywords_found * 0.25)
+        final_score = (numbers_match * 0.45 + text_similarity * 0.325 + keywords_found * 0.225)
 
         return final_score
 
