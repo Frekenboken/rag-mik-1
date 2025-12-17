@@ -17,3 +17,14 @@ class TextEmbedder:
             embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
 
             return embeddings.numpy().astype('float32')
+
+    def embed_documents(self, texts):
+        with torch.no_grad():
+            inputs = self.tokenizer(texts, padding=True, truncation=True,
+                                  max_length=512, return_tensors='pt')
+            outputs = self.model(**inputs)
+
+            embeddings = outputs.last_hidden_state[:, 0, :]
+            embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
+
+            return embeddings.numpy().tolist()

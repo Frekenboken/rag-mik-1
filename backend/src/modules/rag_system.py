@@ -6,6 +6,7 @@ from src.modules.document_tools import DocumentsLoader, Chunker
 from src.modules.rag_exeptions import DimensionMismatch, ModuleLoadingFailure
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 import faiss
+import chromadb
 import pickle
 import numpy as np
 import time
@@ -38,6 +39,10 @@ class RAG:
             self.embedder = TextEmbedder()
         except:
             raise ModuleLoadingFailure(TextEmbedder)
+        try:
+            self.chroma_client = chromadb.Client()
+        except:
+            raise ModuleLoadingFailure(chromadb.Client)
         try:
             self.chunker = Chunker()
         except:
@@ -87,12 +92,22 @@ class RAG:
 
         dimension = embeddings.shape[1]
 
-        print("Поиск индекса...")
+        print("Поиск векторной БД...")
         try:
             self.index = faiss.read_index(self.vdb_path + "index.index")
-            print("Индекс найден!")
+            print("Векторная БД найденa!")
         except:
-            print("Индекс не найден\nСоздаем индекс...")
+            print("Векторная БД не найдена\nСоздаем векторную БД...")
+            print("Поиск эмбеддингов...")
+            try:
+                embeddings = np.load(self.vdb_path + 'embeddings.npy')
+                print("Эмбеддинги найдены!")
+            except:
+                print("Эмбеддинги не найдены\nСоздание эмбеддингов...")
+                embeddings = self.embedder.get_embeddings(self.all_chunks)
+                np.save(self.vdb_path + 'embeddings.npy', embeddings, allow_pickle=False, fix_imports=False)
+                print("Завершено!")
+            dimension = embeddings.shape[1]
             self.index = faiss.IndexFlatIP(dimension)
             self.index.add(embeddings)
             faiss.write_index(self.index, self.vdb_path + "index.index")
@@ -132,7 +147,7 @@ class RAG:
         ind = quest[0]
         expected_answer = quest[3]
         start_time = time.time()
-        actual_answer = self.interaction(query, '') + ' '
+        actual_answer = self.interaction(query, '', k=10, d=3) + ' '
         response_time = time.time() - start_time
         # Расчет схожести
         similarity = self.semantic_search.calculate_similarity(
