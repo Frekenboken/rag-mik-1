@@ -9,17 +9,26 @@ from langchain_community.vectorstores import Chroma
 #'src/static/docs/'
 print('starting')
 with open('../../src/static/chunks_with_meta.bin', 'rb') as chunks_with_meta: chunks_with_meta = pickle.load(chunks_with_meta)
-chunks_with_meta = [Document(page_content=doc, metadata={"id": f'{doc} Раздел {j}.{i}'}) for chunk, i, j, doc in chunks_with_meta]
+chunks_with_meta = [Document(page_content=chunk, metadata={"id": f'{doc} Раздел {j}.{i}'}) for chunk, i, j, doc in chunks_with_meta]
+
 chroma_client = chromadb.Client()
 print('chroma client loaded')
 embedding_function = TextEmbedder()
 print('embedding model loaded')
-vectorstore = Chroma.from_documents(
-    documents=chunks_with_meta,
-    embedding=embedding_function,
-    collection_name='vect_db',
-    client=chroma_client,
-)
+try:
+    vectorstore = Chroma(
+        persist_directory='../../src/vector_db/',
+        embedding_function=embedding_function
+    )
+except FileNotFoundError:
+    print('creating db...')
+    vectorstore = Chroma.from_documents(
+        documents=chunks_with_meta,
+        embedding=embedding_function,
+        collection_name='vect_db',
+        client=chroma_client,
+        persist_directory='../../src/vector_db/'
+    )
 print('vector db initialised')
 # Create dense retriever
 dense_retriever = vectorstore.as_retriever(search_kwargs={"k": 10})
@@ -29,11 +38,11 @@ print('retrievers loaded')
 # Custom hybrid search function (as opposed to using LangChain EnsembleRetriever)
 def hybrid_search(query, k=10, dense_weight=0.5, sparse_weight=0.5):
     # Step 1: Retrieve the top-k documents from both dense search and sparse search.
-    dense_docs = dense_retriever.get_relevant_documents(query)[:k]
+    dense_docs = dense_retriever.invoke(query)[:k]
     dense_doc_ids = [doc.metadata['id'] for doc in dense_docs]
     print("\nCompare IDs:")
     print("dense IDs: ", dense_doc_ids)
-    sparse_docs = sparse_retriever.get_relevant_documents(query)[:k]
+    sparse_docs = sparse_retriever.invoke(query)[:k]
     sparse_doc_ids = [doc.metadata['id'] for doc in sparse_docs]
     print("sparse IDs: ", sparse_doc_ids)
 
@@ -79,11 +88,15 @@ def hybrid_search(query, k=10, dense_weight=0.5, sparse_weight=0.5):
     # Step 7: Return the final ranked and sorted list, truncated by the top-k parameter
     return sorted_docs[:k]
 
+
+print('search initialised')
+print('_'*80)
 while True:
     try:
-        print('search initialised')
-        print('_'*80)
-        print(hybrid_search(input()))
+        t = hybrid_search(input())
+        for i in t:
+            print(i.page_content)
+            print(i.metadata)
         print('_'*80)
     except KeyboardInterrupt:
         print('programm ended')
