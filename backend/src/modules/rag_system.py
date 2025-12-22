@@ -1,16 +1,18 @@
-from src.modules.llm import LLM, context_prompt
+from src.modules.llm_local import LLM
 from src.modules.rerank import Rerank
 from src.modules.text_embedder import TextEmbedder
 from src.modules.semantic_search import SemanticSearch
 from src.modules.document_tools import DocumentsLoader, Chunker
 from src.modules.rag_exeptions import DimensionMismatch, ModuleLoadingFailure
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
-import faiss
+from langchain_core.documents import Document
+from langchain_community.vectorstores import Chroma
 import chromadb
 import pickle
 import numpy as np
 import time
 import json
+import os
 
 
 class RAG:
@@ -31,12 +33,12 @@ class RAG:
         except:
             raise ModuleLoadingFailure(Rerank)
         try:
-            self.llm = LLM(context_prompt)
+            self.llm = LLM()
             pass
         except:
             raise ModuleLoadingFailure(LLM)
         try:
-            self.embedder = TextEmbedder()
+            self.embedder = TextEmbedder(device='cuda')
         except:
             raise ModuleLoadingFailure(TextEmbedder)
         try:
@@ -69,6 +71,7 @@ class RAG:
             self.docs = self.documents_loader.process_docs()
             self.questions = self.questions_loader.process_docs()
             self.all_chunks, self.chunks_with_meta = self.chunker.advanced_separate_on_chunks(self.docs)
+            self.chunks_with_meta = [Document(page_content=chunk, metadata={"id": f'{doc} Раздел {j}.{i}'}) for chunk, i, j, doc in self.chunks_with_meta]
             self.processed_questions = self.chunker.questions_process(self.questions)
             with open(docs_path + '../' + 'docs.bin', 'wb') as docs:
                 pickle.dump(self.docs, docs)
@@ -80,63 +83,51 @@ class RAG:
                 pickle.dump(self.questions, questions)
             print('Завершено!')
 
-        print("Поиск эмбеддингов...")
-        try:
-            embeddings = np.load(self.vdb_path + 'embeddings.npy')
-            print("Эмбеддинги найдены!")
-        except:
-            print("Эмбеддинги не найдены\nСоздание эмбеддингов...")
-            embeddings = self.embedder.get_embeddings(self.all_chunks)
-            np.save(self.vdb_path + 'embeddings.npy', embeddings, allow_pickle=False, fix_imports=False)
-            print("Завершено!")
-
-        dimension = embeddings.shape[1]
-
-        print("Поиск векторной БД...")
-        try:
-            self.index = faiss.read_index(self.vdb_path + "index.index")
-            print("Векторная БД найденa!")
-        except:
-            print("Векторная БД не найдена\nСоздаем векторную БД...")
-            print("Поиск эмбеддингов...")
-            try:
-                embeddings = np.load(self.vdb_path + 'embeddings.npy')
-                print("Эмбеддинги найдены!")
-            except:
-                print("Эмбеддинги не найдены\nСоздание эмбеддингов...")
-                embeddings = self.embedder.get_embeddings(self.all_chunks)
-                np.save(self.vdb_path + 'embeddings.npy', embeddings, allow_pickle=False, fix_imports=False)
-                print("Завершено!")
-            dimension = embeddings.shape[1]
-            self.index = faiss.IndexFlatIP(dimension)
-            self.index.add(embeddings)
-            faiss.write_index(self.index, self.vdb_path + "index.index")
-            print("Завершено!")
-
-        if self.index.d == dimension:
-            print(f"Размерность индекса и эмбеддингов: {dimension}")
+        print('Поиск векторной БД...')
+        if os.path.exists(self.vdb_path + 'chroma.sqlite3'):
+            vectorstore = Chroma(
+                persist_directory=self.vdb_path,
+                embedding_function=self.embedder
+            )
+            print('Векторная БД найдена!')
         else:
-            raise DimensionMismatch(dimension, self.index.d)
+            print('Векторная БД не найдена\nСоздание векторной БД...')
+            vectorstore = Chroma.from_documents(
+                documents=self.chunks_with_meta,
+                embedding=self.embedder,
+                collection_name='vect_db',
+                client=self.chroma_client,
+                persist_directory=self.vdb_path
+            )
+            print('Завершено!')
 
         try:
-            self.semantic_search = SemanticSearch(self.index, self.chunks_with_meta, self.rerank, self.embedder)
+            self.semantic_search = SemanticSearch(vectorstore, self.chunks_with_meta, self.rerank, self.embedder)
         except:
             raise ModuleLoadingFailure(SemanticSearch)
         print('RAG система инициализированна')
 
-    def interaction(self, query, history, k=3, d=2):
-        context = set(self.semantic_search.search(query, k=k)[:d])
-        response = self.llm.context_response(history, ''.join([chunk[0] for chunk in context]), query)
+    def interaction(self, query, history, k=3):
+        context = self.semantic_search.new_search(query, k=k)
+        response = self.llm.inference(query, '\n'.join([chunk.page_content for chunk in context]), history)
 
-        if "В базе данных нет информации по этому вопросу" in response.content:
-            return response.content
+        if "В базе данных нет информации по этому вопросу" in response:
+            return response
 
-        return response.content + ('\n\nИсточники: ' + ', '.join(
-            [f'{source}, Раздел {x_topic}.{s_topic}' for chunk, s_topic, x_topic, source in
+        return response + ('\n\nИсточники: ' + ', '.join(
+            [f'{chunk.metadata["id"]}' for chunk in
              context]) if context != [] else '')
 
+    def llm_debug(self):
+        query = input('user: ')
+        while query != 'stop':
+            print('llm: ')
+            self.llm.debug(query)
+            print()
+            query = input('user: ')
+
     def semsearch_debug(self, query, k):
-        self.semantic_search.search_debuging(query, k=k)
+        self.semantic_search.new_search_debuging(query, k=k)
 
     def keyword_extraction_debug(self, query):
         print(self.semantic_search.extract_keywords(query))
@@ -147,7 +138,7 @@ class RAG:
         ind = quest[0]
         expected_answer = quest[3]
         start_time = time.time()
-        actual_answer = self.interaction(query, '', k=10, d=3) + ' '
+        actual_answer = self.interaction(query, '', k=10) + ' '
         response_time = time.time() - start_time
         # Расчет схожести
         similarity = self.semantic_search.calculate_similarity(
@@ -214,7 +205,7 @@ class RAG:
             print(f"   {result['status']} | Схожесть: {result['similarity']:.2%} | Баллы: {result['score']}")
 
             # Небольшая задержка между запросами
-            time.sleep(0.25)
+            time.sleep(0.1)
 
         max_possible = len(self.processed_questions) * 0.8
 

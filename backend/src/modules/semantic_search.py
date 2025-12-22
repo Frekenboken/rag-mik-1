@@ -1,7 +1,8 @@
-import faiss
+
 import re
 import string
 from natasha import MorphVocab
+from langchain_community.retrievers import BM25Retriever
 
 from src.modules.rerank import Rerank
 from src.modules.text_embedder import TextEmbedder
@@ -19,9 +20,9 @@ nltk.download('averaged_perceptron_tagger_rus')
 
 
 class SemanticSearch:
-    def __init__(self, vector_db: faiss.swigfaiss_avx2.IndexFlatIP, chunks, rerank: Rerank, embedding: TextEmbedder):
-        self.vector_db = vector_db
-        self.chunks = chunks
+    def __init__(self, vectorstore, chunks, rerank: Rerank, embedding: TextEmbedder):
+        self.dense_retriever = vectorstore.as_retriever(search_kwargs={"k": 10})
+        self.sparse_retriever = BM25Retriever.from_documents(chunks, k=10, preprocess_func=lambda x: x.lower())
         self.rerank = rerank
         self.embedding = embedding
         self.morph = MorphVocab()
@@ -46,6 +47,110 @@ class SemanticSearch:
             self.chunks
             )
          return [self.chunks[idx] for similarity, idx in relevance]
+
+    def new_search_debuging(self, query, k=3, dense_weight=0.5, sparse_weight=0.5):
+        dense_docs = self.dense_retriever.invoke(query.lower())[:k]
+        dense_doc_ids = [doc.metadata['id'] for doc in dense_docs]
+        print("\nCompare IDs:")
+        print("dense IDs: ", dense_doc_ids)
+        sparse_docs = self.sparse_retriever.invoke(query.lower())[:k]
+        sparse_doc_ids = [doc.metadata['id'] for doc in sparse_docs]
+        print("sparse IDs: ", sparse_doc_ids)
+
+        # Combine the document IDs and remove duplicates
+        all_doc_ids = list(set(dense_doc_ids + sparse_doc_ids))
+
+        # Create dictionaries to store the reciprocal ranks
+        dense_reciprocal_ranks = {doc_id: 0.0 for doc_id in all_doc_ids}
+        sparse_reciprocal_ranks = {doc_id: 0.0 for doc_id in all_doc_ids}
+
+        # Step 2: Calculate the reciprocal rank for each document in dense and sparse search results.
+        for i, doc_id in enumerate(dense_doc_ids):
+            dense_reciprocal_ranks[doc_id] = 1.0 / (i + 1)
+
+        for i, doc_id in enumerate(sparse_doc_ids):
+            sparse_reciprocal_ranks[doc_id] = 1.0 / (i + 1)
+
+        # Step 3: Sum the reciprocal ranks for each document.
+        combined_reciprocal_ranks = {doc_id: 0.0 for doc_id in all_doc_ids}
+        for doc_id in all_doc_ids:
+            combined_reciprocal_ranks[doc_id] = dense_weight * dense_reciprocal_ranks[doc_id] + sparse_weight * \
+                                                sparse_reciprocal_ranks[doc_id]
+
+        # Step 4: Sort the documents based on their combined reciprocal rank scores.
+        sorted_doc_ids = sorted(all_doc_ids, key=lambda doc_id: combined_reciprocal_ranks[doc_id], reverse=True)
+
+        # Step 5: Retrieve the documents based on the sorted document IDs.
+        sorted_docs = []
+        all_docs = dense_docs + sparse_docs
+        for doc_id in sorted_doc_ids:
+            matching_docs = [doc for doc in all_docs if doc.metadata['id'] == doc_id]
+            if matching_docs:
+                doc = matching_docs[0]
+                doc.metadata['score'] = combined_reciprocal_ranks[doc_id]
+                doc.metadata['rank'] = sorted_doc_ids.index(doc_id) + 1
+                if len(matching_docs) > 1:
+                    doc.metadata['retriever'] = 'both'
+                elif doc in dense_docs:
+                    doc.metadata['retriever'] = 'dense'
+                else:
+                    doc.metadata['retriever'] = 'sparse'
+                sorted_docs.append(doc)
+
+        # Step 7: Return the final ranked and sorted list, truncated by the top-k parameter
+        print(f"🔍 Запрос: '{query}'\n")
+        for num, i in enumerate(sorted_docs[:k]):
+            print(f'{num+1}. {i.metadata}')
+            print(i.page_content)
+            print("=" * 80)
+
+    def new_search(self, query, k=3, dense_weight=0.5, sparse_weight=0.5):
+        dense_docs = self.dense_retriever.invoke(query.lower())[:k]
+        dense_doc_ids = [doc.metadata['id'] for doc in dense_docs]
+        sparse_docs = self.sparse_retriever.invoke(query.lower())[:k]
+        sparse_doc_ids = [doc.metadata['id'] for doc in sparse_docs]
+
+        # Combine the document IDs and remove duplicates
+        all_doc_ids = list(set(dense_doc_ids + sparse_doc_ids))
+
+        # Create dictionaries to store the reciprocal ranks
+        dense_reciprocal_ranks = {doc_id: 0.0 for doc_id in all_doc_ids}
+        sparse_reciprocal_ranks = {doc_id: 0.0 for doc_id in all_doc_ids}
+
+        # Step 2: Calculate the reciprocal rank for each document in dense and sparse search results.
+        for i, doc_id in enumerate(dense_doc_ids):
+            dense_reciprocal_ranks[doc_id] = 1.0 / (i + 1)
+
+        for i, doc_id in enumerate(sparse_doc_ids):
+            sparse_reciprocal_ranks[doc_id] = 1.0 / (i + 1)
+
+        # Step 3: Sum the reciprocal ranks for each document.
+        combined_reciprocal_ranks = {doc_id: 0.0 for doc_id in all_doc_ids}
+        for doc_id in all_doc_ids:
+            combined_reciprocal_ranks[doc_id] = dense_weight * dense_reciprocal_ranks[doc_id] + sparse_weight * \
+                                                sparse_reciprocal_ranks[doc_id]
+
+        # Step 4: Sort the documents based on their combined reciprocal rank scores.
+        sorted_doc_ids = sorted(all_doc_ids, key=lambda doc_id: combined_reciprocal_ranks[doc_id], reverse=True)
+
+        # Step 5: Retrieve the documents based on the sorted document IDs.
+        sorted_docs = []
+        all_docs = dense_docs + sparse_docs
+        for doc_id in sorted_doc_ids:
+            matching_docs = [doc for doc in all_docs if doc.metadata['id'] == doc_id]
+            if matching_docs:
+                doc = matching_docs[0]
+                doc.metadata['score'] = combined_reciprocal_ranks[doc_id]
+                doc.metadata['rank'] = sorted_doc_ids.index(doc_id) + 1
+                if len(matching_docs) > 1:
+                    doc.metadata['retriever'] = 'both'
+                elif doc in dense_docs:
+                    doc.metadata['retriever'] = 'dense'
+                else:
+                    doc.metadata['retriever'] = 'sparse'
+                sorted_docs.append(doc)
+        return sorted_docs[:k]
+
 
     def extract_keywords(self, text):
 

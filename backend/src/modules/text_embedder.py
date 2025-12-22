@@ -28,6 +28,7 @@ class TextEmbedder:
             return embeddings.numpy().astype('float32')
 
     def embed_documents(self, texts):
+        texts = [text.lower() for text in texts]
         batch_size = 8  # <-- Если снова будет ошибка памяти, уменьши до 4 или 2
         all_embeddings = []
 
@@ -62,6 +63,7 @@ class TextEmbedder:
         return all_embeddings
 
     def embed_query(self, text):
+        text = [text[0].lower()]
         with torch.no_grad():
             # 1. Токенизация
             inputs = self.tokenizer(text, padding=True, truncation=True,
